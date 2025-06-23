@@ -5,7 +5,7 @@
   <title>MNIST Digit Generator</title>
   <style>
     body { font-family: sans-serif; text-align: center; }
-    .images { display: flex; justify-content: center; gap: 10px; margin-top: 20px; }
+    .images { display: flex; justify-content: center; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
     img { width: 100px; height: 100px; image-rendering: pixelated; }
   </style>
 </head>
@@ -20,12 +20,18 @@
   <script>
     async function generateImages() {
       const digit = document.getElementById("digit").value;
-      const response = await fetch('http://https://mnist-digit-backend.onrender.com/generate', {
+
+      if (digit === "") {
+        alert("Please enter a digit between 0 and 9.");
+        return;
+      }
+
+      const response = await fetch('https://mnist-digit-backend.onrender.com/generate', {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({ digit: 3 })
+        body: JSON.stringify({ digit })
       });
 
       const data = await response.json();
@@ -39,7 +45,7 @@
           output.appendChild(img);
         });
       } else {
-        output.innerHTML = `<p>Error: ${data.error}</p>`;
+        output.innerHTML = `<p>Error: ${data.error || "Unknown error"}</p>`;
       }
     }
   </script>
