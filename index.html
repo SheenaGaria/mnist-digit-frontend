@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>MNIST Digit Generator</title>
+  <style>
+    body { font-family: sans-serif; text-align: center; }
+    .images { display: flex; justify-content: center; gap: 10px; margin-top: 20px; }
+    img { width: 100px; height: 100px; image-rendering: pixelated; }
+  </style>
+</head>
+<body>
+  <h1>Handwritten Digit Image Generator</h1>
+  <label for="digit">Choose a digit (0–9): </label>
+  <input type="number" id="digit" min="0" max="9">
+  <button onclick="generateImages()">Generate</button>
+
+  <div class="images" id="output"></div>
+
+  <script>
+    async function generateImages() {
+      const digit = document.getElementById("digit").value;
+      const response = await fetch('http://localhost:5000/generate', {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ digit: digit })
+      });
+
+      const data = await response.json();
+      const output = document.getElementById("output");
+      output.innerHTML = "";
+
+      if (data.images) {
+        data.images.forEach(base64 => {
+          const img = document.createElement("img");
+          img.src = `data:image/png;base64,${base64}`;
+          output.appendChild(img);
+        });
+      } else {
+        output.innerHTML = `<p>Error: ${data.error}</p>`;
+      }
+    }
+  </script>
+</body>
+</html>
