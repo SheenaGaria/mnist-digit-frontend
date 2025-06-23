@@ -20,12 +20,12 @@
   <script>
     async function generateImages() {
       const digit = document.getElementById("digit").value;
-      const response = await fetch('http://localhost:5000/generate', {
+      const response = await fetch('http://https://mnist-digit-backend.onrender.com/generate', {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({ digit: digit })
+        body: JSON.stringify({ digit: 3 })
       });
 
       const data = await response.json();
