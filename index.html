@@ -1,53 +1,75 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>MNIST Digit Generator</title>
-  <style>
-    body { font-family: sans-serif; text-align: center; }
-    .images { display: flex; justify-content: center; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
-    img { width: 100px; height: 100px; image-rendering: pixelated; }
-  </style>
-</head>
-<body>
-  <h1>Handwritten Digit Image Generator</h1>
-  <label for="digit">Choose a digit (0–9): </label>
-  <input type="number" id="digit" min="0" max="9">
-  <button onclick="generateImages()">Generate</button>
+  <head>
+    <meta charset="UTF-8" />
+    <title>MNIST Digit Generator</title>
+    <style>
+      body {
+        font-family: sans-serif;
+        text-align: center;
+        padding: 20px;
+      }
+      .images {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 10px;
+        margin-top: 20px;
+      }
+      img {
+        width: 100px;
+        height: 100px;
+        image-rendering: pixelated;
+        border: 1px solid #ccc;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Handwritten Digit Image Generator</h1>
+    <label for="digit">Choose a digit (0–9): </label>
+    <input type="number" id="digit" min="0" max="9" />
+    <button onclick="generateImages()">Generate</button>
 
-  <div class="images" id="output"></div>
+    <div class="images" id="output"></div>
 
-   <script>
-  async function generateImages() {
-    const digit = document.getElementById("digit").value;
+    <script>
+      async function generateImages() {
+        const digit = document.getElementById("digit").value;
+        if (digit === "" || digit < 0 || digit > 9) {
+          alert("Please enter a digit between 0 and 9.");
+          return;
+        }
 
-    if (digit === "") {
-      alert("Please enter a digit between 0 and 9.");
-      return;
-    }
+        try {
+          const response = await fetch(
+            "https://mnist-digit-backend.onrender.com/generate",
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ digit }),
+            }
+          );
 
-    const response = await fetch('https://mnist-digit-backend.onrender.com/generate', {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ digit })
-    });
+          const data = await response.json();
+          const output = document.getElementById("output");
+          output.innerHTML = "";
 
-    const data = await response.json();
-    const output = document.getElementById("output");
-    output.innerHTML = "";
-
-    if (data.images) {
-      data.images.forEach(base64 => {
-        const img = document.createElement("img");
-        img.src = `data:image/png;base64,${base64}`;
-        output.appendChild(img);
-      });
-    } else {
-      output.innerHTML = `<p>Error: ${data.error || "Unknown error"}</p>`;
-    }
-  }
-</script>
-</body>
+          if (data.images) {
+            data.images.forEach((base64) => {
+              const img = document.createElement("img");
+              img.src = `data:image/png;base64,${base64}`;
+              output.appendChild(img);
+            });
+          } else {
+            output.innerHTML = `<p>Error: ${data.error || "Unknown error"}</p>`;
+          }
+        } catch (err) {
+          console.error(err);
+          document.getElementById(
+            "output"
+          ).innerHTML = `<p>Failed to fetch images. Check console for errors.</p>`;
+        }
+      }
+    </script>
+  </body>
 </html>
